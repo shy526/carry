@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://47.52.70.180:3306/carry?characterEncoding=utf8&useSSL=false
+    username: root
+    #password: (m4itAdq_jNfL112
+    password:
+    druid:
+      initial-size: 5
+      min-idle: 3
+      maxActive: 6
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      #超时
+      maxWair: 6000
+      # 检测要关闭的空闲时间
+      minEvictableIdleTimeMillis: 30000
+
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+    #poolPreparedStatements: true
+    #maxPoolPreparedStatementPerConnectionSize: 20

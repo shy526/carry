@@ -1,0 +1,19 @@
+mybatis:
+  # mapper配置文件
+  config-location: classpath:/mybatis/mybatis-config.xml
+  # mmapper扫描
+  mapper-locations: classpath:/mybatis/mappers/*.xml
+  # 别名包
+  type-aliases-package: top.ccxh.carry.mapper.pojo
+#通用mapper
+mapper:
+    mappers: top.ccxh.common.mapper.SysMapper
+    not-empty: false
+    identity: MYSQL
+
+#分页插件
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql

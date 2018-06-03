@@ -1,0 +1,8 @@
+logging:
+  path: logs/
+spring:
+  profiles:
+    active: datasource,mybatis,httpclient
+file:
+  root: '/home/project/carry'
+
