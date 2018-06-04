@@ -1,4 +1,4 @@
-package top.ccxh.carry.scheduler.task;
+package top.ccxh.carry.scheduler.task.bilibili;
 
 
 import com.alibaba.fastjson.JSON;
@@ -10,19 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import top.ccxh.carry.mapper.anno.ActionUserMapper;
 import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
 import top.ccxh.carry.mapper.pojo.FileInfo;
+import top.ccxh.carry.scheduler.task.DequeManger;
 import top.ccxh.carry.scheduler.upload.BilibliUpLoad;
 import top.ccxh.common.service.HttpClientService;
 import top.ccxh.common.utils.ThreadPoolUtil;
 
-import java.io.*;
 import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
