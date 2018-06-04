@@ -53,7 +53,7 @@ public class BilibiliRecord implements Runnable {
             log.info("{}的直播流获取异常:{}", user.getbId(), e.getMessage());
             return;
         }
-        Date startTime = null;
+        Date startTime = new Date();;
         BufferedOutputStream bufferedOutputStream = null;
         try {
             fileName = rootPath.concat(actionUser.getUserName()).concat("_").concat(LocalDateTime.now().format(yyyyMMdd)).concat("_").concat(actionUser.getbId()).concat("_").concat(Thread.currentThread().getName()).concat("_") + System.currentTimeMillis();
@@ -66,7 +66,6 @@ public class BilibiliRecord implements Runnable {
                 bufferedOutputStream.write(buff, 0, len);
                 if (size >= MAX_SIZE) {
                     size = 0;
-                    startTime = new Date();
                     try {
                         //关闭前强制刷新一次
                         bufferedOutputStream.flush();
@@ -76,13 +75,16 @@ public class BilibiliRecord implements Runnable {
                     HttpClientService.closeIO(bufferedOutputStream);
                     HttpClientService.closeIO(response);
                     HttpClientService.closeIO(content);
+                    //先分发
+                    dispense(startTime);
+                    //重置开始时间
+                    startTime = new Date();
                     response = httpClientService.doResponse(url);
                     if (response == null) {
                         log.info("bid:{}直播已结束", user.getbId());
                         return;
                     }
                     content=new BufferedInputStream(response.getEntity().getContent());
-                    dispense(startTime);
                     bufferedOutputStream = getOutput();
 
                 }
