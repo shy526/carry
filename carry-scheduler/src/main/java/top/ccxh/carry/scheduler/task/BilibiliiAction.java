@@ -93,7 +93,7 @@ public class BilibiliiAction {
             object.put("file", fileInfo);
             userCondition.setId(fileInfo.getUserId());
             object.put("user", actionUserMapper.selectByPrimaryKey(userCondition));
-            bilibliUpLoad.upload(object);
+            dequeManger.getDeque().offer(object);
         };
     }
 
