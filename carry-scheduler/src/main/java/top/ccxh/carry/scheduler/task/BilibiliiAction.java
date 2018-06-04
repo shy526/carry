@@ -15,14 +15,10 @@ import top.ccxh.carry.mapper.anno.ActionUserMapper;
 import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
 import top.ccxh.carry.mapper.pojo.FileInfo;
-import top.ccxh.carry.scheduler.upload.BilibliUpLoad;
 import top.ccxh.common.service.HttpClientService;
 import top.ccxh.common.utils.ThreadPoolUtil;
 
-import java.io.*;
 import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -49,8 +45,6 @@ public class BilibiliiAction {
     @Autowired
     FileInfoMapper fileInfoMapper;
 
-    @Autowired
-    private BilibliUpLoad bilibliUpLoad;
     @Scheduled(cron = "10/1 * * * * ? ")
     public void scan() {
         CloseableHttpResponse response = null;
