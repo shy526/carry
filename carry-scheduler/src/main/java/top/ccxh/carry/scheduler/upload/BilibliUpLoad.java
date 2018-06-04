@@ -112,15 +112,23 @@ public class BilibliUpLoad {
             actions.sendKeys(Keys.ENTER).build().perform();
         }, 1,"添加标签").action(() -> {
             String flag = null;
+            String load = null;
             while (true) {
                 try {
                     flag = driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[1]/div[1]/div/div/div[2]/div[1]/div[2]")).getText();
                     if ("上传完成".equals(flag)) {
                         break;
                     }else if ("正在上传".equals(flag)){
-                        WebDriverHelp.sleep(10);
+                        WebDriverHelp.sleep(5);
+                        try {
+                            load = driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[2]/div[1]/div[1]/div/div/div[2]/div[1]/div[3]")).getText();
+                        }catch (Exception e){
+                            load="(┬＿┬)";
+                        }
+                        LOGGER.info("正在上传:{},速度:{}",file.getFilePath(),load);
+                    } else{
+                        break;
                     }
-                    else break;
                 } catch (Exception e) {
                 }
             }
@@ -154,6 +162,7 @@ public class BilibliUpLoad {
                 m.motiona();
             } catch (Exception e) {
                 LOGGER.info("动作执行异常:{}", msg);
+                e.printStackTrace();
                 return this;
             }
             LOGGER.info("动作执行时间:{}", System.currentTimeMillis() - start);
