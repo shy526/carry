@@ -18,6 +18,15 @@ public class FileInfo implements Serializable {
     private  Date createTime;
     private  Date updateTime;
     private Integer flag;
+    private Integer userId;
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
     public Integer getFlag() {
         return flag;

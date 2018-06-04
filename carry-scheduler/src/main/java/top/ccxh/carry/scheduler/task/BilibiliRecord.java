@@ -86,7 +86,6 @@ public class BilibiliRecord implements Runnable {
                     }
                     content=new BufferedInputStream(response.getEntity().getContent());
                     bufferedOutputStream = getOutput();
-
                 }
             }
         } catch (FileNotFoundException e) {
@@ -122,6 +121,7 @@ public class BilibiliRecord implements Runnable {
                 fileInfo.setStartTime(startTime);
                 fileInfo.setCreateTime(new Date());
                 fileInfo.setUpdateTime(fileInfo.getCreateTime());
+                fileInfo.setUserId(actionUser.getId());
                 fileInfoMapper.insertSelective(fileInfo);
                 JSONObject object = new JSONObject();
                 object.put("file", fileInfo);
@@ -138,6 +138,7 @@ public class BilibiliRecord implements Runnable {
      * @throws FileNotFoundException
      */
     private BufferedOutputStream getOutput() throws FileNotFoundException {
+
         index++;
         return new BufferedOutputStream(new FileOutputStream(fileName + index + ".flv"));
     }
@@ -149,6 +150,11 @@ public class BilibiliRecord implements Runnable {
         updateFla(0);
     }
 
+    /**
+     * 更新用户标志位,
+     * =1 时会添加闲的actionTime
+     * @param i
+     */
     private void updateFla(int i) {
         ActionUser ac = new ActionUser();
         ac.setFlag(i);

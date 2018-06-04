@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import top.ccxh.carry.mapper.anno.ActionUserMapper;
 import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
+import top.ccxh.carry.mapper.pojo.FileInfo;
+import top.ccxh.carry.scheduler.upload.BilibliUpLoad;
 import top.ccxh.common.service.HttpClientService;
 import top.ccxh.common.utils.ThreadPoolUtil;
 
@@ -46,11 +48,15 @@ public class BilibiliiAction {
     private String fileRoot;
     @Autowired
     FileInfoMapper fileInfoMapper;
+
+    @Autowired
+    private BilibliUpLoad bilibliUpLoad;
     @Scheduled(cron = "10/1 * * * * ? ")
     public void scan() {
         CloseableHttpResponse response = null;
         ActionUser actionUser = new ActionUser();
         actionUser.setFlag(0);
+        actionUser.setLinkType(0);
         List<ActionUser> select = actionUserMapper.select(actionUser);
         for (ActionUser user : select) {
             try {
@@ -70,6 +76,26 @@ public class BilibiliiAction {
     }
 
 
+    /**
+     * 补交失败的文件
+     */
+    @Scheduled(cron = "20/1 * * * * ? ")
+    public void payUPload(){
+        FileInfo condition =new FileInfo();
+        condition.setFlag(2);
+        List<FileInfo> select = fileInfoMapper.select(condition);
+        condition.setFlag(3);
+        ActionUser userCondition = new ActionUser();
+        for (FileInfo fileInfo:select){
+            condition.setId(fileInfo.getId());
+            fileInfoMapper.updateByPrimaryKeySelective(condition);
+            JSONObject object = new JSONObject();
+            object.put("file", fileInfo);
+            userCondition.setId(fileInfo.getUserId());
+            object.put("user", actionUserMapper.selectByPrimaryKey(userCondition));
+            bilibliUpLoad.upload(object);
+        };
+    }
 
     /**
      * 获取直播流的url

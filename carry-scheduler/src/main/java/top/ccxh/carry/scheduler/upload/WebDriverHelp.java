@@ -16,11 +16,11 @@ public class WebDriverHelp {
     public static long createTime=0;
     private static   WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("headless");
+       /* options.addArguments("headless");*/
         options.addArguments("no-sandbox");
         String path = "/home/project/carry/chromedriver";
         if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") > -1) {
-            path = "F:\\carry\\carry-scheduler\\src\\main\\resources\\driver\\chromedriver.exe";
+            path = "D:\\chromedriver.exe";
         }
         System.out.println(WebDriverHelp.class.getClassLoader().getResource("."));
         File file = new File(path);

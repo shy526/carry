@@ -139,7 +139,7 @@ public class HttpClientService {
      */
     private String execute(HttpRequestBase httpMethod) {
         CloseableHttpResponse response = null;
-        LOGGER.info("执行{}请求，URL = {}",httpMethod.getMethod(),httpMethod.getURI());
+        LOGGER.debug("执行{}请求，URL = {}",httpMethod.getMethod(),httpMethod.getURI());
         // 执行请求
         try {
             response = httpClient.execute(httpMethod);
@@ -214,7 +214,7 @@ public class HttpClientService {
     }
 
     public CloseableHttpResponse doResponse(String url) {
-        LOGGER.info("执行GET请求，URL = {}", url);
+        LOGGER.debug("执行GET请求，URL = {}", url);
         // 创建http GET请求
         HttpGet httpGet = new HttpGet(url);
         httpGet.setConfig(requestConfig);
@@ -227,6 +227,8 @@ public class HttpClientService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //非200 状态 关闭respones org.apache.http.conn.ConnectionPoolTimeoutException: Timeout waiting for connection from pool
+        HttpClientService.closeIO(response);
         return null;
     }
 

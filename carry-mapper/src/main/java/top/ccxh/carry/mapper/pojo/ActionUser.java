@@ -19,6 +19,15 @@ public class ActionUser implements Serializable {
     private Date createTime;
     private Date updateTime;
     private Date actionTime;
+    private Integer linkType;
+
+    public Integer getLinkType() {
+        return linkType;
+    }
+
+    public void setLinkType(Integer linkType) {
+        this.linkType = linkType;
+    }
 
     public Integer getId() {
         return id;
