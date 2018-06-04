@@ -1,6 +1,7 @@
 package top.ccxh.common.service;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -283,5 +284,14 @@ public class HttpClientService {
 
     public String doPostSetHeander(String url, Map<String,String> map) throws Exception {
         return  this.doPost(url,null,null,map);
+    }
+
+    public String doGet(String hostName,Integer port,String url){
+        HttpGet httpGet = new HttpGet(url);
+        HttpHost proxy=new HttpHost(hostName, port);//127.0.0.1:1021
+        RequestConfig requestConfig=RequestConfig.custom().setProxy(proxy).build();
+        httpGet.setConfig(requestConfig);
+        CloseableHttpResponse response = null;
+        return execute(httpGet);
     }
 }
