@@ -51,7 +51,7 @@ public class BilibliUpLoad {
         };
         WebDriver driver = WebDriverHelp.getChromeDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        WebDriverHelp.sleep(5);
+        WebDriverHelp.sleep(4);
         if (!setCookie(driver)) {
             return false;
         }
@@ -62,7 +62,7 @@ public class BilibliUpLoad {
             By xpath = By.xpath("//*[@id=\"root\"]/div[1]/div[1]/div/div/div/div[2]");
             driver.findElement(xpath).click();
             ;
-        }, 5,"跳过教程").action(() -> {
+        }, 4,"跳过教程").action(() -> {
             //单机投稿
             driver.findElement(By.id("nav_upload_btn")).click();
         }, 1,"单机投稿").action(() -> {
@@ -119,13 +119,8 @@ public class BilibliUpLoad {
                     if ("上传完成".equals(flag)) {
                         break;
                     }else if ("正在上传".equals(flag)){
-                        WebDriverHelp.sleep(5);
-                        try {
-                            load = driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[2]/div[1]/div[1]/div/div/div[2]/div[1]/div[3]")).getText();
-                        }catch (Exception e){
-                            load="(┬＿┬)";
-                        }
-                        LOGGER.info("正在上传:{},速度:{}",file.getFilePath(),load);
+                        WebDriverHelp.sleep(4);
+                        LOGGER.info("正在上传:{}",file.getFilePath());
                     } else{
                         break;
                     }

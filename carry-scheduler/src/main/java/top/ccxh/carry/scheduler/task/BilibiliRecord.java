@@ -20,14 +20,13 @@ public class BilibiliRecord implements Runnable {
     private final static Logger log = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final static DateTimeFormatter yyyyMMddHHmmss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final static long MAX_SIZE = (long)(1000L * 1000L*1000L*3.7D);
+    private final static long MAX_SIZE = 1000L * 1000L*1000L*2L;
     private HttpClientService httpClientService;
     private ActionUser actionUser;
     private LinkedBlockingDeque<Object> linkedBlockingDeques;
     private String rootPath;
     private String fileName;
     private ActionUserMapper actionUserMapper;
-    private long index = 0;
     private String url;
    private FileInfoMapper fileInfoMapper;
     public BilibiliRecord(FileInfoMapper fileInfoMapper,ActionUser actionUser, String url, String rootPath, LinkedBlockingDeque<Object> linkedBlockingDeques, ActionUserMapper actionUserMapper,HttpClientService httpClientService) {
@@ -56,8 +55,7 @@ public class BilibiliRecord implements Runnable {
         Date startTime = new Date();;
         BufferedOutputStream bufferedOutputStream = null;
         try {
-            fileName = rootPath.concat(actionUser.getUserName()).concat("_").concat(LocalDateTime.now().format(yyyyMMdd)).concat("_").concat(actionUser.getbId()).concat("_").concat(Thread.currentThread().getName()).concat("_") + System.currentTimeMillis();
-            bufferedOutputStream = getOutput();
+             bufferedOutputStream = getOutput();
             byte buff[] = new byte[2048];
             int len = -1;
             long size = 0;
@@ -112,7 +110,7 @@ public class BilibiliRecord implements Runnable {
      * @param startTime
      */
     private void dispense(Date startTime) {
-        File file = new File(fileName + index + ".flv");
+        File file = new File(fileName);
         if (file.exists()) {
             if (file.length() > 1) {
                 FileInfo fileInfo = new FileInfo();
@@ -138,9 +136,11 @@ public class BilibiliRecord implements Runnable {
      * @throws FileNotFoundException
      */
     private BufferedOutputStream getOutput() throws FileNotFoundException {
-
-        index++;
-        return new BufferedOutputStream(new FileOutputStream(fileName + index + ".flv"));
+        fileName = rootPath.concat(actionUser.getUserName()).concat("_")
+                .concat(LocalDateTime.now().format(yyyyMMdd)).concat("_")
+                .concat(actionUser.getbId()).concat("_")
+                .concat(Thread.currentThread().getName()).concat("_") + ((int)(Math.random()*10000))+((int)(Math.random()*10000))+".flv";
+        return new BufferedOutputStream(new FileOutputStream(fileName));
     }
 
     @Override
