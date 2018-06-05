@@ -1,7 +1,6 @@
 package top.ccxh.carry.scheduler.upload;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.slf4j.Logger;
@@ -16,11 +15,8 @@ import top.ccxh.carry.mapper.pojo.CookiePojo;
 import top.ccxh.carry.mapper.pojo.FileInfo;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -37,18 +33,15 @@ public class BilibliUpLoad {
     private String fileRoot;
     private FileInfo file;
     private ActionUser user;
-    private SimpleDateFormat yyyyMMdd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat yyyyMMddHHmmss = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public boolean upload(JSONObject object) {
-
         if (object.get("file") instanceof FileInfo) {
             file = (FileInfo) object.get("file");
-
         }
-
         if (object.get("user") instanceof ActionUser) {
             user = (ActionUser) object.get("user");
-        };
+        }
         WebDriver driver = WebDriverHelp.getChromeDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         WebDriverHelp.sleep(4);
@@ -80,7 +73,7 @@ public class BilibliUpLoad {
         }, 1,"点击转载").action(() -> {
             //输入信息 转载说明
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[1]/div[3]/div/div[1]/div/input"))
-                    .sendKeys(user.getUserName().concat("_").concat(yyyyMMdd.format(file.getStartTime())).concat("-").concat(yyyyMMdd.format(file.getEndTime())).concat("直播实况"));
+                    .sendKeys(user.getUserName().concat("_").concat(yyyyMMddHHmmss.format(file.getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(file.getEndTime())).concat("直播实况"));
         }, 1,"转载说明").action(() -> {
             //清楚标题
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).sendKeys("1");
@@ -88,7 +81,7 @@ public class BilibliUpLoad {
         }, 2,"清空标题").action(() -> {
             //填入标题
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).clear();
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).sendKeys(user.getUserName().concat("_").concat(yyyyMMdd.format(file.getStartTime())).concat("-").concat(yyyyMMdd.format(file.getEndTime())).concat("直播实况"));
+            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).sendKeys(user.getUserName().concat("_").concat(yyyyMMddHHmmss.format(file.getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(file.getEndTime())).concat("直播实况"));
         }, 1,"添加标题").action(() -> {
             //选择生活分区
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[2]/div[2]/div[1]/div[12]/div[1]")).click();
@@ -101,7 +94,7 @@ public class BilibliUpLoad {
         }, 1,"同步").action(() -> {
             //视屏简介
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[5]/div/div/div[2]/div[1]/textarea"))
-                    .sendKeys(user.getUserName().concat(yyyyMMdd.format(file.getStartTime())).concat("-").concat(yyyyMMdd.format(file.getEndTime())).concat("直播实况"));
+                    .sendKeys(user.getUserName().concat(yyyyMMddHHmmss.format(file.getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(file.getEndTime())).concat("直播实况"));
         }, 1,"视屏简介").action(() -> {
             //添加标签
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[4]/div[2]/div/div[2]/div[2]/div[1]/input")).sendKeys("asmr");

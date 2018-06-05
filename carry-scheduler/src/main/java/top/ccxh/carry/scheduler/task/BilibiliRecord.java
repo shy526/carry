@@ -17,10 +17,10 @@ import java.util.Date;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class BilibiliRecord implements Runnable {
-    private final static Logger log = LoggerFactory.getLogger(BilibiliiAction.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final static DateTimeFormatter yyyyMMddHHmmss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final static long MAX_SIZE = 1000L * 1000L*1000L*2L;
+
     private HttpClientService httpClientService;
     private ActionUser actionUser;
     private LinkedBlockingDeque<Object> linkedBlockingDeques;
@@ -28,7 +28,8 @@ public class BilibiliRecord implements Runnable {
     private String fileName;
     private ActionUserMapper actionUserMapper;
     private String url;
-   private FileInfoMapper fileInfoMapper;
+    private FileInfoMapper fileInfoMapper;
+
     public BilibiliRecord(FileInfoMapper fileInfoMapper,ActionUser actionUser, String url, String rootPath, LinkedBlockingDeque<Object> linkedBlockingDeques, ActionUserMapper actionUserMapper,HttpClientService httpClientService) {
         this.actionUser = actionUser;
         this.url = url;
@@ -43,13 +44,13 @@ public class BilibiliRecord implements Runnable {
         InputStream content = null;
         CloseableHttpResponse response = httpClientService.doResponse(url);
         if (response == null) {
-            log.info("bid:{}直播已结束", user.getbId());
+            LOGGER.info("bid:{}直播已结束", user.getbId());
             return;
         }
         try {
             content = new BufferedInputStream(response.getEntity().getContent());
         } catch (IOException e) {
-            log.info("{}的直播流获取异常:{}", user.getbId(), e.getMessage());
+            LOGGER.info("{}的直播流获取异常:{}", user.getbId(), e.getMessage());
             return;
         }
         Date startTime = new Date();;
@@ -79,7 +80,7 @@ public class BilibiliRecord implements Runnable {
                     startTime = new Date();
                     response = httpClientService.doResponse(url);
                     if (response == null) {
-                        log.info("bid:{}直播已结束", user.getbId());
+                        LOGGER.info("bid:{}直播已结束", user.getbId());
                         return;
                     }
                     content=new BufferedInputStream(response.getEntity().getContent());
@@ -146,7 +147,11 @@ public class BilibiliRecord implements Runnable {
     @Override
     public void run() {
         updateFla(1);
-        record(this.url, this.actionUser);
+        try {
+            record(this.url, this.actionUser);
+        }catch (Exception e){
+           LOGGER.info("异常中断");
+        }
         updateFla(0);
     }
 
