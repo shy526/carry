@@ -83,13 +83,25 @@ public class BilibliUpLoad {
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).clear();
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).sendKeys(user.getUserName().concat("_").concat(yyyyMMddHHmmss.format(file.getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(file.getEndTime())).concat("直播实况"));
         }, 1,"添加标题").action(() -> {
-            //选择生活分区
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[2]/div[2]/div[1]/div[12]/div[1]")).click();
-        }, 1,"生活分区").action(() -> {
-            //选择生活分区下的asmr
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[2]/div[2]/div[1]/div[12]/div[2]/div[9]")).click();
-        }, 1,"选择asmr").action(() -> {
-            //
+            //分区版本
+            WebElement parren = driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[2]/div[2]/div[1]"));
+            List<WebElement> elements = parren.findElements(By.cssSelector(".content-type-list-item"));
+            for (WebElement element:elements){
+                if (element.getText().equals("生活")){
+                    element.click();
+                    List<WebElement> subs = parren.findElements(By.cssSelector(".list-mod-1-main-name"));
+                    for (WebElement sub:subs){
+                        if (element.getText().equals("生活")) {
+                            sub.click();
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            // WebElement element1 = element.findElement();
+        }, 1,"生活分区选择asmr").action(() -> {
+            //点击同步
             driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[6]/div[1]/div[2]/div")).click();
         }, 1,"同步").action(() -> {
             //视屏简介
@@ -112,8 +124,15 @@ public class BilibliUpLoad {
                     if ("上传完成".equals(flag)) {
                         break;
                     }else if ("正在上传".equals(flag)){
-                        WebDriverHelp.sleep(4);
-                        LOGGER.info("正在上传:{}",file.getFilePath());
+                        WebDriverHelp.sleep(2);
+                        try {
+                            load = driver.findElement(By.cssSelector(".file-item-remain")).getText();
+                        }catch (Exception e){
+                            load="(┬＿┬)";
+                        }
+                        LOGGER.info("正在上传:{}-->{}",file.getFilePath(),load);
+                        WebDriverHelp.sleep(2);
+
                     } else{
                         break;
                     }

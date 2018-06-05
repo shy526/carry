@@ -20,6 +20,7 @@ import top.ccxh.carry.scheduler.upload.BilibliUpLoad;
 import top.ccxh.common.service.HttpClientService;
 import top.ccxh.common.utils.ThreadPoolUtil;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -63,6 +64,7 @@ public class BilibiliiAction {
                     HttpClientService.closeIO(response);
                     continue;
                 }
+                updateFla(user,1);
                 threadPool.execute(new BilibiliRecord(fileInfoMapper,user,actionUrl,fileRoot,dequeManger.getDeque(),actionUserMapper,httpClientService));
             } catch (Exception e) {
                 //将获取错误的的
@@ -71,6 +73,20 @@ public class BilibiliiAction {
         }
     }
 
+    /**
+     * 脏读
+     * @param user
+     * @param i
+     */
+    private void updateFla(ActionUser user,int i) {
+        ActionUser ac = new ActionUser();
+        ac.setFlag(i);
+        ac.setId(user.getId());
+        if (1 == i) {
+            ac.setActionTime(new Date());
+        }
+        actionUserMapper.updateByPrimaryKeySelective(ac);
+    }
 
     /**
      * 补交失败的文件

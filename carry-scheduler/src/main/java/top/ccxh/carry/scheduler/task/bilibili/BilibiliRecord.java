@@ -72,8 +72,9 @@ public class BilibiliRecord implements Runnable {
                         e.printStackTrace();
                     }
                     HttpClientService.closeIO(bufferedOutputStream);
-                    HttpClientService.closeIO(response);
                     HttpClientService.closeIO(content);
+                    HttpClientService.closeIO(response);
+
                     //先分发
                     dispense(startTime);
                     //重置开始时间
@@ -147,11 +148,13 @@ public class BilibiliRecord implements Runnable {
     @Override
     public void run() {
         updateFla(1);
+        LOGGER.info("start-Thread Name{}-{}",Thread.currentThread().getName(),actionUser.getUserName());
         try {
             record(this.url, this.actionUser);
         }catch (Exception e){
            LOGGER.info("异常中断");
         }
+        LOGGER.info("end-Thread Name{}-{}",Thread.currentThread().getName(),actionUser.getUserName());
         updateFla(0);
     }
 
