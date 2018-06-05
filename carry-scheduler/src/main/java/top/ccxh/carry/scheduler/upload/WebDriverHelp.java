@@ -1,6 +1,7 @@
 package top.ccxh.carry.scheduler.upload;
 
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -16,11 +17,11 @@ public class WebDriverHelp {
     public static long createTime=0;
     private static   WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("headless");
+       options.addArguments("headless");
         options.addArguments("no-sandbox");
         String path = "/home/project/carry/chromedriver";
         if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") > -1) {
-            path = "D:\\chromedriver.exe";
+            path = "F:\\javap\\carry\\carry-scheduler\\src\\main\\resources\\driver\\chromedriver.exe";
         }
         File file = new File(path);
         if (!file.exists()) {
@@ -38,6 +39,8 @@ public class WebDriverHelp {
     static WebDriver getChromeDriver(){
         if(WebDriverHelp.webDriver==null){
             WebDriverHelp.webDriver=createChromeDriver();
+            //1280*720
+            webDriver.manage().window().setSize(new Dimension(1280, 720));
             return webDriver;
         }
         return WebDriverHelp.webDriver;
