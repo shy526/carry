@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import top.ccxh.carry.mapper.anno.ActionUserMapper;
 import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
@@ -28,7 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author honey
  */
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-/*@Component*/
+@Component
 public class BilibiliiAction {
     private final static Logger log = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static String ROOM_URL = "https://api.live.bilibili.com/room/v1/Room/room_init?id=%s";

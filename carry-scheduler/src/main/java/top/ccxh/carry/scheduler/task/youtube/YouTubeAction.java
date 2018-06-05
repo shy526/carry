@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-@Component
+//@Component
 public class YouTubeAction {
     ThreadPoolExecutor threadPool = ThreadPoolUtil.getThreadPool();
     private final static String url = "http://www.youtube.com/get_video_info?&video_id=%s";
