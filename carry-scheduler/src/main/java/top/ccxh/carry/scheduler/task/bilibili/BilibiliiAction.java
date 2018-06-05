@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author honey
  */
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-@Component
+/*@Component*/
 public class BilibiliiAction {
     private final static Logger log = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static String ROOM_URL = "https://api.live.bilibili.com/room/v1/Room/room_init?id=%s";

@@ -294,4 +294,25 @@ public class HttpClientService {
         CloseableHttpResponse response = null;
         return execute(httpGet);
     }
+
+    public CloseableHttpResponse doResponse(String hostName,Integer port,String url) {
+        LOGGER.debug("执行GET请求，URL = {}", url);
+        // 创建http GET请求
+        HttpGet httpGet = new HttpGet(url);
+        HttpHost proxy=new HttpHost(hostName, port);//127.0.0.1:1021
+        RequestConfig requestConfig=RequestConfig.custom().setProxy(proxy).build();
+        httpGet.setConfig(requestConfig);
+        CloseableHttpResponse response = null;
+        try {
+            response = httpClient.execute(httpGet);
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                return response;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //非200 状态 关闭respones org.apache.http.conn.ConnectionPoolTimeoutException: Timeout waiting for connection from pool
+        HttpClientService.closeIO(response);
+        return null;
+    }
 }

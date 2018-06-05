@@ -37,9 +37,9 @@ public class ApplicationRun implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        actionUserInit();
-        fileInfoInit();
-        environmentInit();
+//        actionUserInit();
+//        fileInfoInit();
+//        environmentInit();
 
         //开启上传线程(唯一)
         new Thread(()->{

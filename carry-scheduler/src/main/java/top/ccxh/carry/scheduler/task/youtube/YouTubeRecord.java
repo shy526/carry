@@ -29,7 +29,7 @@ public class YouTubeRecord implements Runnable {
     private String fileName;
     private String rootPath;
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final static Pattern pattern = Pattern.compile("http:.*/sq/(\\w+)");
+    private final static Pattern pattern = Pattern.compile("https:.*/sq/(\\w+)");
     private final static long MAX_SIZE = 1000L * 1000L * 1000L * 2L;
     private FileInfoMapper fileInfoMapper;
     private LinkedBlockingDeque<Object> linkedBlockingDeques;
@@ -47,25 +47,31 @@ public class YouTubeRecord implements Runnable {
         downloadStart();
 
         while (true) {
+            long squence=0;
             String s = httpClientService.doGet("127.0.0.1", 1021, url);
             if (null != s && !"".equals(s)) {
+                String[] split = s.split("\\n");
                 if (index == null) {
+                    index=Long.parseLong(split[3].split(":")[1]);
                     //提示开流
                     down.offer("1");
                     //拿取第一个流序号
                 } else {
-                    // 比index 小 跳过 大就保留
+//                   if (index>Long.parseLong(split[3].split(":")[1])){
+//                       continue;
+//                   }
                 }
-                String[] split = s.split("\\n");
                 if (split.length >= 7) {
                     for (int i = 7; i < split.length; i++) {
                         if (i % 2 != 0) {
                             long t = m3u8Index(split[i]);
                             if ((t - index) == 0) {
+                                System.out.println("t = " + t);
                                 index++;
                                 down.offer(split[i]);
                             } else if ((t - index) > 0) {
                                 // 说明断流 申请重新开流
+                                index=t;
                                 down.offer("1");
                             }
                         }
@@ -75,11 +81,12 @@ public class YouTubeRecord implements Runnable {
                 down.offer("-1");
                 break;
             }
-            try {
-                Thread.sleep(2 * 1000);
+         /*   try {
+                *//*Thread.sleep(200);*//*
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
         return true;
     }
@@ -107,9 +114,14 @@ public class YouTubeRecord implements Runnable {
                         if (take.equals("1")) {
                             //断开或者卡了的指示
                             startTime=new Date();
-                            getBufferedOutputStream();
+                            if (bufferedOutputStream!=null){
+                                dispense(startTime);
+                                HttpClientService.closeIO(bufferedOutputStream);
+                            }
+                            bufferedOutputStream = getBufferedOutputStream();
+                            continue;
                         }
-                        response = httpClientService.doResponse(take);
+                        response = httpClientService.doResponse("127.0.0.1", 1021,take);
                         if (response == null) {
                             LOGGER.info("response is null:{}", user.getbId());
                             continue;
@@ -119,16 +131,22 @@ public class YouTubeRecord implements Runnable {
                         while ((len = bufferedInputStream.read(buuf)) != -1) {
                             size += len;
                             bufferedOutputStream.write(buuf, 0, len);
+
                             if (size >= MAX_SIZE) {
-                                bufferedOutputStream = getBufferedOutputStream();
+                               size=0;
+                                HttpClientService.closeIO(bufferedOutputStream);
                                 dispense(startTime);
+                                bufferedOutputStream = getBufferedOutputStream();
                                 //重置开始时间
                                 startTime=new Date();
                             }
                         }
+                        HttpClientService.closeIO(bufferedInputStream);
+                        HttpClientService.closeIO(response);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }finally {
+                       // HttpClientService.closeIO(bufferedOutputStream);
                         HttpClientService.closeIO(bufferedInputStream);
                         HttpClientService.closeIO(response);
                     }

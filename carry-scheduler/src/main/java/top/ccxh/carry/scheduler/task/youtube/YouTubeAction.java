@@ -16,18 +16,19 @@ import top.ccxh.common.utils.ThreadPoolUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-//@Component
+@Component
 public class YouTubeAction {
     ThreadPoolExecutor threadPool = ThreadPoolUtil.getThreadPool();
     private final static String url = "http://www.youtube.com/get_video_info?&video_id=%s";
     private final static Logger LOGGER = LoggerFactory.getLogger(YouTubeAction.class);
-    Pattern pattern = Pattern.compile("hlsvp=(.*).m3u8");
+    Pattern pattern = Pattern.compile("hlsvp=(.*)\\.m3u8");
     @Autowired
     ActionUserMapper actionUserMapper;
     @Autowired
@@ -39,7 +40,7 @@ public class YouTubeAction {
     @Autowired
     FileInfoMapper fileInfoMapper;
     @Scheduled(cron = "10/1 * * * * ? ")
-    public void scan() {
+    public void scan() throws UnsupportedEncodingException {
         CloseableHttpResponse response = null;
         ActionUser actionUser = new ActionUser();
         actionUser.setFlag(0);
@@ -50,11 +51,11 @@ public class YouTubeAction {
             String s = httpClientService.doGet("127.0.0.1", 1021, String.format(url, user.getbId()));
             if (null != s && !"".equals(s)) {
                 String m3u8 = getM3u8(s);
-                s = httpClientService.doGet("127.0.0.1", 1021, m3u8);
+                s = httpClientService.doGet("127.0.0.1", 1021,m3u8);
                 if (null != s && !"".equals(s)) {
                     String[] split = s.split("\\n");
                     if (split != null && split.length > 0) {
-
+                        LOGGER.info(split[split.length - 2]);
                        threadPool.execute(new YouTubeRecord(split[split.length - 1], httpClientService,user,actionUserMapper,fileRoot,fileInfoMapper,dequeManger.getDeque()));
                     }
                 }
@@ -71,7 +72,7 @@ public class YouTubeAction {
             return null;
         }
         if (matcher.find()) {
-            return matcher.group(1).concat("m3u8");
+            return matcher.group(1).concat(".m3u8");
         }
         return null;
     }
