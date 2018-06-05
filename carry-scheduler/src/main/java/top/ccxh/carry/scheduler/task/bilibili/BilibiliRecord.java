@@ -1,4 +1,4 @@
-package top.ccxh.carry.scheduler.task;
+package top.ccxh.carry.scheduler.task.bilibili;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.client.methods.CloseableHttpResponse;
