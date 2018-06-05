@@ -4,10 +4,13 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import top.ccxh.carry.mapper.anno.ActionUserMapper;
+import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
+import top.ccxh.carry.scheduler.task.DequeManger;
 import top.ccxh.common.service.HttpClientService;
 import top.ccxh.common.utils.ThreadPoolUtil;
 
@@ -29,7 +32,12 @@ public class YouTubeAction {
     ActionUserMapper actionUserMapper;
     @Autowired
     private HttpClientService httpClientService;
-
+    @Value("${file.root}")
+    private String fileRoot;
+    @Autowired
+    DequeManger dequeManger;
+    @Autowired
+    FileInfoMapper fileInfoMapper;
     @Scheduled(cron = "10/1 * * * * ? ")
     public void scan() {
         CloseableHttpResponse response = null;
@@ -47,7 +55,7 @@ public class YouTubeAction {
                     String[] split = s.split("\\n");
                     if (split != null && split.length > 0) {
 
-                       // threadPool.execute(new YouTubeRecord(split[split.length - 1], httpClientService,user,actionUserMapper));
+                       threadPool.execute(new YouTubeRecord(split[split.length - 1], httpClientService,user,actionUserMapper,fileRoot,fileInfoMapper,dequeManger.getDeque()));
                     }
                 }
             }
