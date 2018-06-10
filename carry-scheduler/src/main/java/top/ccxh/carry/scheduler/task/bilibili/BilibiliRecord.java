@@ -1,5 +1,6 @@
 package top.ccxh.carry.scheduler.task.bilibili;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class BilibiliRecord implements Runnable {
     private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final static long MAX_SIZE = 1000L * 1000L*1000L*2L;
+    private final static long MAX_SIZE = (long)((1000L * 1000L*1000L)*1.3D);
 
     private HttpClientService httpClientService;
     private ActionUser actionUser;
@@ -74,16 +75,16 @@ public class BilibiliRecord implements Runnable {
                     HttpClientService.closeIO(bufferedOutputStream);
                     HttpClientService.closeIO(content);
                     HttpClientService.closeIO(response);
-
-                    //先分发
-                    dispense(startTime);
-                    //重置开始时间
-                    startTime = new Date();
                     response = httpClientService.doResponse(url);
                     if (response == null) {
                         LOGGER.info("bid:{}直播已结束", user.getbId());
                         return;
                     }
+                    LOGGER.info("bid:{}-稿件分p", user.getbId());
+                    //先分发
+                    dispense(startTime);
+                    //重置开始时间
+                    startTime = new Date();
                     content=new BufferedInputStream(response.getEntity().getContent());
                     bufferedOutputStream = getOutput();
                 }
@@ -126,6 +127,7 @@ public class BilibiliRecord implements Runnable {
                 JSONObject object = new JSONObject();
                 object.put("file", fileInfo);
                 object.put("user", actionUser);
+                LOGGER.info("add deque:{}",JSON.toJSONString(object));
                 linkedBlockingDeques.offer(object);
             }
         }
@@ -148,13 +150,13 @@ public class BilibiliRecord implements Runnable {
     @Override
     public void run() {
         updateFla(1);
-        LOGGER.info("start-Thread Name{}-{}",Thread.currentThread().getName(),actionUser.getUserName());
+        LOGGER.info("start-Thread Name{}-{}-{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId());
         try {
             record(this.url, this.actionUser);
         }catch (Exception e){
            LOGGER.info("异常中断");
         }
-        LOGGER.info("end-Thread Name{}-{}",Thread.currentThread().getName(),actionUser.getUserName());
+        LOGGER.info("end-Thread Name{}-{}-{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId());
         updateFla(0);
     }
 

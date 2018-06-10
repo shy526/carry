@@ -60,7 +60,6 @@ public class BilibiliiAction {
                 String actionUrl = getActionUrl(user.getbId());
                 response = httpClientService.doResponse(actionUrl);
                 if (response == null) {
-                    log.info("bid:{}没有开始直播", user.getbId());
                     HttpClientService.closeIO(response);
                     continue;
                 }
