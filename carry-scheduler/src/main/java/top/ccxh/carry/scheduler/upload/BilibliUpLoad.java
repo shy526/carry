@@ -171,8 +171,7 @@ public class BilibliUpLoad {
             try {
                 m.motiona();
             } catch (Exception e) {
-                LOGGER.info("动作执行异常:{}", msg);
-                e.printStackTrace();
+                LOGGER.info("动作执行异常:{},{}",msg,e.getClass().getSimpleName());
                 WebDriverHelp.printscreen(fileRoot.concat("/png/").concat(new File(file.getFilePath()).getName()).concat("_").concat(System.currentTimeMillis() +msg+ "error.png"));
                 return this;
             }

@@ -20,7 +20,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class BilibiliRecord implements Runnable {
     private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final static long MAX_SIZE = (long)((1000L * 1000L*1000L)*1.3D);
+    private final static long MAX_SIZE = (long)((1000L * 1000L*1000L)*1.5D);
 
     private HttpClientService httpClientService;
     private ActionUser actionUser;
