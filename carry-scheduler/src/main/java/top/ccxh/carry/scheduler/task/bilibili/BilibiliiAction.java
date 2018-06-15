@@ -20,8 +20,7 @@ import top.ccxh.carry.scheduler.upload.BilibliUpLoad;
 import top.ccxh.common.service.HttpClientService;
 import top.ccxh.common.utils.ThreadPoolUtil;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -90,22 +89,43 @@ public class BilibiliiAction {
     /**
      * 补交失败的文件
      */
+    private Map<String,List<FileInfo>> groupList=new HashMap<String,List<FileInfo>>();
     @Scheduled(cron = "20/1 * * * * ? ")
     public void payUPload(){
+        groupList.clear();
         FileInfo condition =new FileInfo();
-        condition.setFlag(2);
+        //test 5 2
+        condition.setFlag(5); //补交也是以分p方式补交
         List<FileInfo> select = fileInfoMapper.select(condition);
-        condition.setFlag(3);
+        Map<String, List<FileInfo>> stringListMap = groupFileinfo(select);
         ActionUser userCondition = new ActionUser();
-        for (FileInfo fileInfo:select){
-            condition.setId(fileInfo.getId());
-            fileInfoMapper.updateByPrimaryKeySelective(condition);
+        for (Map.Entry<String, List<FileInfo>> entry :this.groupList.entrySet()){
             JSONObject object = new JSONObject();
-            object.put("file", fileInfo);
-            userCondition.setId(fileInfo.getUserId());
+            object.put("file", entry.getValue());
+            userCondition.setId(entry.getValue().get(0).getUserId());
             object.put("user", actionUserMapper.selectByPrimaryKey(userCondition));
             dequeManger.getDeque().offer(object);
-        };
+        }
+
+    }
+
+    /**
+     * 对结果集进行分组,并修改标记
+     * @param select
+     * @return
+     */
+    private Map<String, List<FileInfo>> groupFileinfo(List<FileInfo> select) {
+        List<JSONObject> objects=new ArrayList<>();
+        for (FileInfo fileInfo:select){
+            List<FileInfo> fileInfos = groupList.get(fileInfo.getGroupId());
+            if (fileInfos==null){
+                fileInfos= new ArrayList<>();
+            }
+            fileInfos.add(fileInfo);
+            this.groupList.put(fileInfo.getGroupId(),fileInfos);
+        }
+        this.fileInfoMapper.updateBathFileInfoByid(3,select);
+        return groupList;
     }
 
     /**

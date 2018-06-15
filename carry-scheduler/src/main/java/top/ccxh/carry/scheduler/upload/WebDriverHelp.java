@@ -10,18 +10,19 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+
 
 public class WebDriverHelp {
     private static WebDriver webDriver;
     public static long createTime=0;
     private static   WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
-       options.addArguments("headless");
+     /*  options.addArguments("headless");*/
         options.addArguments("no-sandbox");
         String path = "/home/project/carry/chromedriver";
         if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") > -1) {
-            path = "F:\\javap\\carry\\carry-scheduler\\src\\main\\resources\\driver\\chromedriver.exe";
+         //   path = "F:\\javap\\carry\\carry-scheduler\\src\\main\\resources\\driver\\chromedriver.exe";
+            path = "D:\\chromedriver.exe";
         }
         File file = new File(path);
         if (!file.exists()) {

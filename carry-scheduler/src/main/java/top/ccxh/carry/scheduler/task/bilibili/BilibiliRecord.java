@@ -10,18 +10,19 @@ import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
 import top.ccxh.carry.mapper.pojo.FileInfo;
 import top.ccxh.common.service.HttpClientService;
-
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class BilibiliRecord implements Runnable {
     private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final static long MAX_SIZE = (long)((1000L * 1000L*1000L)*1.5D);
-
     private HttpClientService httpClientService;
     private ActionUser actionUser;
     private LinkedBlockingDeque<Object> linkedBlockingDeques;
@@ -30,6 +31,10 @@ public class BilibiliRecord implements Runnable {
     private ActionUserMapper actionUserMapper;
     private String url;
     private FileInfoMapper fileInfoMapper;
+    //唯一分组id
+    private String groupId=null;
+    //分p数组
+    private List<FileInfo> fileInfoList=null;
 
     public BilibiliRecord(FileInfoMapper fileInfoMapper,ActionUser actionUser, String url, String rootPath, LinkedBlockingDeque<Object> linkedBlockingDeques, ActionUserMapper actionUserMapper,HttpClientService httpClientService) {
         this.actionUser = actionUser;
@@ -39,6 +44,8 @@ public class BilibiliRecord implements Runnable {
         this.actionUserMapper = actionUserMapper;
         this.httpClientService=httpClientService;
         this.fileInfoMapper=fileInfoMapper;
+        this.groupId=UUID.randomUUID().toString();
+        this.fileInfoList=new ArrayList<>();
     }
 
     private void record(String url, ActionUser user) {
@@ -65,6 +72,7 @@ public class BilibiliRecord implements Runnable {
                 size += len;
                 bufferedOutputStream.write(buff, 0, len);
                 if (size >= MAX_SIZE) {
+                    //分p
                     size = 0;
                     try {
                         //关闭前强制刷新一次
@@ -82,7 +90,7 @@ public class BilibiliRecord implements Runnable {
                     }
                     LOGGER.info("bid:{}-稿件分p", user.getbId());
                     //先分发
-                    dispense(startTime);
+                    addList(startTime);
                     //重置开始时间
                     startTime = new Date();
                     content=new BufferedInputStream(response.getEntity().getContent());
@@ -103,16 +111,17 @@ public class BilibiliRecord implements Runnable {
             HttpClientService.closeIO(bufferedOutputStream);
             HttpClientService.closeIO(content);
             HttpClientService.closeIO(response);
-            dispense(startTime);
+            addList(startTime);
+            finalAddDeques();
         }
     }
 
     /**
-     * 分发到队列中
+     * 添加到分p数组中
      *
      * @param startTime
      */
-    private void dispense(Date startTime) {
+    private void addList(Date startTime) {
         File file = new File(fileName);
         if (file.exists()) {
             if (file.length() > 1) {
@@ -122,15 +131,23 @@ public class BilibiliRecord implements Runnable {
                 fileInfo.setStartTime(startTime);
                 fileInfo.setCreateTime(new Date());
                 fileInfo.setUpdateTime(fileInfo.getCreateTime());
-                fileInfo.setUserId(actionUser.getId());
-                fileInfoMapper.insertSelective(fileInfo);
-                JSONObject object = new JSONObject();
-                object.put("file", fileInfo);
-                object.put("user", actionUser);
-                LOGGER.info("add deque:{}",JSON.toJSONString(object));
-                linkedBlockingDeques.offer(object);
+                fileInfo.setUserId(this.actionUser.getId());
+                fileInfo.setGroupId(this.groupId);
+                this.fileInfoMapper.insertSelective(fileInfo);
+                this.fileInfoList.add(fileInfo);
             }
         }
+    }
+
+    /**
+     * 分发
+     */
+    private void finalAddDeques(){
+        JSONObject object = new JSONObject();
+        object.put("file", this.fileInfoList);
+        object.put("user", actionUser);
+        LOGGER.info("add deque:{}",JSON.toJSONString(object));
+        linkedBlockingDeques.offer(object);
     }
 
     /**

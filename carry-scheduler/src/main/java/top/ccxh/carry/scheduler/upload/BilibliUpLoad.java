@@ -31,13 +31,13 @@ public class BilibliUpLoad {
     FileInfoMapper fileInfoMapper;
     @Value("${file.root}")
     private String fileRoot;
-    private FileInfo file;
+    private List<FileInfo> fileInfoList;
     private ActionUser user;
     private SimpleDateFormat yyyyMMddHHmmss = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public boolean upload(JSONObject object) {
-        if (object.get("file") instanceof FileInfo) {
-            file = (FileInfo) object.get("file");
+        if (object.get("file") instanceof List) {
+            fileInfoList = (List<FileInfo>) object.get("file");
         }
         if (object.get("user") instanceof ActionUser) {
             user = (ActionUser) object.get("user");
@@ -55,7 +55,7 @@ public class BilibliUpLoad {
             By xpath = By.xpath("//*[@id=\"root\"]/div[1]/div[1]/div/div/div/div[2]");
             driver.findElement(xpath).click();
             ;
-        }, 4, "跳过教程").action(() -> {
+        }, 4, "跳过教程0").action(() -> {
             //单机投稿
             driver.findElement(By.id("nav_upload_btn")).click();
         }, 1, "单机投稿").action(() -> {
@@ -64,40 +64,62 @@ public class BilibliUpLoad {
             driver.findElement(By.cssSelector(".cc-nav-wrp")).isDisplayed();
             driver.switchTo().frame("videoUpload");
         }, 1, "切换frame").action(() -> {
-            //上传文件
-            driver.findElement(By.xpath("//*[@name=\"file\"]")).sendKeys(file.getFilePath());
+            //上传文件 TODO: 需要修改为群体上传
+           driver.findElement(By.xpath("//*[@name=\"file\"]")).sendKeys(fileInfoList.get(0).getFilePath());
         }, 2, "上传文件").action(() -> {
             //跳过教程
             driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div/div/div/div/div")).click();
-        }, 2, "跳过教程").action(() -> {
+        }, 2, "跳过教程1").action(() -> {
+            //跳过教程
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[3]/div/div/div/div/div")).click();
+        }, 2, "跳过教程2").action(() -> {
+            //跳过教程
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[3]/div/div/div/div/div[1]")).click();
+        }, 2, "跳过教程3").action(() -> {
+            //跳过教程
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[3]/div/div/div/div/div[1]")).click();
+        }, 2, "知道了").action(() -> {
             //点击转载
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[1]/div[2]/div[2]")).click();
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[4]/div[2]/div[2]/span[2]")).click();
         }, 1, "点击转载").action(() -> {
             //输入信息 转载说明
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[1]/div[3]/div/div[1]/div/input"))
-                    .sendKeys(user.getUserName().concat("_").concat(yyyyMMddHHmmss.format(file.getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(file.getEndTime())).concat("直播实况"));
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[4]/div[3]/div/div/input"))
+                    .sendKeys(user.getUserName().concat("直播实况:").concat(yyyyMMddHHmmss.format(this.fileInfoList.get(0).getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(this.fileInfoList.get(this.fileInfoList.size()-1).getEndTime()))+"[直播间地址:https://live.bilibili.com/"+user.getbId()+"]");
         }, 1, "转载说明").action(() -> {
+            //获取板块
+            WebElement element = driver.findElement(By.cssSelector(".file-list-v2-container"));
+            WebElement upload = element.findElement(By.cssSelector(".webuploader-element-invisible"));
+            if (this.fileInfoList.size()>1){
+                //过滤文件1
+                for (int i=1;i<this.fileInfoList.size();i++)
+                upload.sendKeys(fileInfoList.get(i).getFilePath());
+            }
+        }, 1, "批量上传").action(() -> {
             //清楚标题
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).sendKeys("1");
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).clear();
+            WebElement element = driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[8]/div[2]/div/div/input"));
+            element.sendKeys("1");
+            element.clear();
         }, 2, "清空标题").action(() -> {
             //填入标题
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).clear();
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[3]/div[2]/div/div/input")).sendKeys(user.getUserName().concat("_").concat(yyyyMMddHHmmss.format(file.getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(file.getEndTime())).concat("直播实况"));
+            WebElement element = driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[8]/div[2]/div/div/input"));
+            element.clear();
+            element.sendKeys(user.getUserName().concat("_").concat("").concat("直播实况"));
         }, 1, "添加标题").action(() -> {
-            //点击同步
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[6]/div[1]/div[2]/div")).click();
-        }, 1, "同步").action(() -> {
+
+            driver.findElement(By.xpath("//*[@id=\"type-list-v2-container\"]/div[2]/div/div")).click();
             //分区版本
-            WebElement parren = driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[2]/div[2]/div[1]"));
-            List<WebElement> elements = parren.findElements(By.cssSelector(".content-type-list-item"));
+            WebElement parren = driver.findElement(By.xpath("//*[@id=\"type-list-v2-container\"]/div[2]/div/div[2]"));
+            //分割选项
+            List<WebElement> elements = parren.findElements(By.cssSelector(".drop-cascader-pre-item"));
 
             for (WebElement element : elements) {
                 if (element.getText().equals("生活")) {
                     element.click();
-                    List<WebElement> subs = parren.findElements(By.cssSelector(".list-mod-1-main-name"));
+                    List<WebElement> subs = parren.findElement(By.cssSelector(".drop-cascader-list-wrp"))
+                            .findElements(By.cssSelector(".item-main"));
                     for (WebElement sub : subs) {
-                        if (element.getText().equals("生活")) {
+                        if (sub.getText().equals("其他")) {
+                            //筛选其他
                             sub.click();
                             break;
                         }
@@ -108,56 +130,82 @@ public class BilibliUpLoad {
             // WebElement element1 = element.findElement();
         }, 1, "生活分区选择asmr").action(() -> {
             //视屏简介
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[5]/div/div/div[2]/div[1]/textarea"))
-                    .sendKeys(user.getUserName().concat(yyyyMMddHHmmss.format(file.getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(file.getEndTime())).concat("直播实况"));
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[12]/div[2]/div/textarea"))
+                    .sendKeys(user.getUserName().concat(yyyyMMddHHmmss.format(this.fileInfoList.get(0).getStartTime())).concat("-")
+                            .concat(yyyyMMddHHmmss.format(this.fileInfoList.get(this.fileInfoList.size()-1).getEndTime())).concat("直播实况"));
         }, 1, "视屏简介").action(() -> {
             //添加标签
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[4]/div[2]/div/div[2]/div[2]/div[1]/input")).sendKeys("asmr");
+            driver.findElement(By.xpath("//*[@id=\"content-tag-v2-container\"]/div[2]/div/div[2]/input")).sendKeys("asmr");
             actions.sendKeys(Keys.ENTER).build().perform();
-        }, 1, "添加标签").action(() -> {
+        }, 1, "添加asmr标签").action(() -> {
             //添加标签
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[2]/div[1]/div[4]/div[2]/div/div[2]/div[2]/div[2]/input")).sendKeys("直播实录");
+            driver.findElement(By.xpath("//*[@id=\"content-tag-v2-container\"]/div[2]/div/div[2]/input")).sendKeys("直播实况");
             actions.sendKeys(Keys.ENTER).build().perform();
-        }, 1, "添加标签").action(() -> {
+        }, 1, "添加直播实况标签").action(() -> {
+            //添加标签
+            driver.findElement(By.xpath("//*[@id=\"content-tag-v2-container\"]/div[2]/div/div[2]/input")).sendKeys(user.getUserName());
+            actions.sendKeys(Keys.ENTER).build().perform();
+        }, 1, "添加用户名标签").action(() -> {
             String flag = null;
             String load = null;
+            //上传计数器
+            int loadc=0;
             while (true) {
                 try {
-                    flag = driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[1]/div[1]/div/div/div[2]/div[1]/div[2]")).getText();
-                    if ("上传完成".equals(flag)) {
-                        break;
-                    } else if ("正在上传".equals(flag)) {
-                        WebDriverHelp.sleep(2);
-                        try {
-                            load = driver.findElement(By.cssSelector(".file-item-remain")).getText();
-                        } catch (Exception e) {
-                            load = "(┬＿┬)";
+                    List<WebElement> elements = driver.findElement(By.cssSelector(".file-list-v2-container")).findElements(By.cssSelector(".item-upload-info"));
+                    for (WebElement element:elements){
+                        flag = element.getText();
+                        if ("上传完成".equals(flag)) {
+                            loadc++;
+                            continue;
+                        } else if ("正在上传".equals(flag)) {
+                            WebDriverHelp.sleep(2);
+                            try {
+                                load = driver.findElement(By.cssSelector(".file-item-remain")).getText();
+                            } catch (Exception e) {
+                                load = "(┬＿┬)";
+                            }
+                             /*LOGGER.info("正在上传:{}-->{}", file.getFilePath(), load);*/
+                        }else {
+                            LOGGER.info("获取异常");
+                            return;
                         }
-                        LOGGER.info("正在上传:{}-->{}", file.getFilePath(), load);
-                        WebDriverHelp.sleep(2);
-
-                    } else {
-                        break;
                     }
+                    if (loadc<this.fileInfoList.size()){
+                        LOGGER.info("总共{}个,还有{}个未上传",this.fileInfoList.size(),this.fileInfoList.size()-loadc);
+                    }else{
+                        return;
+                    }
+                    WebDriverHelp.sleep(2);
                 } catch (Exception e) {
+                    LOGGER.info("无法确认上传");
+                    break;
                 }
             }
         }, 1, "上传完成").action(() -> {
             //发布
-            driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[2]/div[3]/div[2]/div[3]/div[1]")).click();
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[5]/span[1]")).click();
         }, 5, "发布");
-        WebDriverHelp.printscreen(fileRoot.concat("/png/").concat(new File(file.getFilePath()).getName()).concat("_").concat(System.currentTimeMillis() + ".png"));
+        WebDriverHelp.printscreen(fileRoot.concat("/png/").concat(this.fileInfoList.get(0).getGroupId()).concat("_").concat(System.currentTimeMillis() + ".png"));
         action.action(() -> {
-            String text = driver.findElement(By.xpath("//*[@id=\"item\"]/div/div[3]/div[3]/a")).getText();
+            String text = driver.findElement(By.xpath("//*[@id=\"app\"]/div/div[3]/div[3]/a[1]")).getText();
             if (text.equals("查看稿件")) {
-                updateflag(1); //上传
-            } else {
-                Integer flag = file.getFlag();
-                if (flag == null || flag == 0) {
-                    updateflag(2); //上传成功
-                } else {
-                    updateflag(4); //补交成功
+                for (FileInfo file:this.fileInfoList){
+                    this.fileInfoMapper.updateBathFileInfoByid(1,fileInfoList);
                 }
+
+            } else {
+                for (FileInfo file:this.fileInfoList){
+                    Integer flag = file.getFlag();
+                    if (flag == null || flag == 0) {
+                        this.fileInfoMapper.updateBathFileInfoByid(2,fileInfoList);
+                       //上传不成功
+                    } else {
+                        this.fileInfoMapper.updateBathFileInfoByid(4,fileInfoList);
+                       //补交不成功
+                    }
+                }
+
                 WebDriverHelp.zclose();
             }
         }, 1, "查看稿件");
@@ -171,11 +219,11 @@ public class BilibliUpLoad {
             try {
                 m.motiona();
             } catch (Exception e) {
-                LOGGER.info("动作执行异常:{},{}",msg,e.getClass().getSimpleName());
-                WebDriverHelp.printscreen(fileRoot.concat("/png/").concat(new File(file.getFilePath()).getName()).concat("_").concat(System.currentTimeMillis() +msg+ "error.png"));
+                LOGGER.info("{}:动作执行异常:{}",msg,e.getClass().getSimpleName());
+                WebDriverHelp.printscreen(fileRoot.concat("/png/").concat(fileInfoList.get(0).getGroupId()).concat("_").concat(System.currentTimeMillis() +msg+ "error.png"));
                 return this;
             }
-            LOGGER.info("动作执行时间:{}", System.currentTimeMillis() - start);
+            LOGGER.info("{},动作执行时间:{}",msg, System.currentTimeMillis() - start);
             WebDriverHelp.sleep(i);
             return this;
         }
@@ -220,10 +268,10 @@ public class BilibliUpLoad {
         return true;
     }
 
-    private void updateflag(int i) {
-        FileInfo filex = new FileInfo();
-        filex.setId(file.getId());
-        filex.setFlag(i);
-        fileInfoMapper.updateByPrimaryKeySelective(filex);
+    private void updateflag(FileInfo file,int i) {
+            FileInfo filex = new FileInfo();
+            filex.setId(file.getId());
+            filex.setFlag(i);
+            fileInfoMapper.updateByPrimaryKeySelective(filex);
     }
 }

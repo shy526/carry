@@ -19,6 +19,15 @@ public class FileInfo implements Serializable {
     private  Date updateTime;
     private Integer flag;
     private Integer userId;
+    private String groupId;
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
     public Integer getUserId() {
         return userId;
