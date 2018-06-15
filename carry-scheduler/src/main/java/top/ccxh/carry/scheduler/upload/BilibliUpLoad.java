@@ -34,6 +34,7 @@ public class BilibliUpLoad {
     private List<FileInfo> fileInfoList;
     private ActionUser user;
     private SimpleDateFormat yyyyMMddHHmmss = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat yyyyMMddHH = new SimpleDateFormat("yyyy-MM-dd");
 
     public boolean upload(JSONObject object) {
         if (object.get("file") instanceof List) {
@@ -86,13 +87,18 @@ public class BilibliUpLoad {
             driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[4]/div[3]/div/div/input"))
                     .sendKeys(user.getUserName().concat("直播实况:").concat(yyyyMMddHHmmss.format(this.fileInfoList.get(0).getStartTime())).concat("-").concat(yyyyMMddHHmmss.format(this.fileInfoList.get(this.fileInfoList.size()-1).getEndTime()))+"[直播间地址:https://live.bilibili.com/"+user.getbId()+"]");
         }, 1, "转载说明").action(() -> {
-            //获取板块
-            WebElement element = driver.findElement(By.cssSelector(".file-list-v2-container"));
-            WebElement upload = element.findElement(By.cssSelector(".webuploader-element-invisible"));
+
             if (this.fileInfoList.size()>1){
+
                 //过滤文件1
-                for (int i=1;i<this.fileInfoList.size();i++)
-                upload.sendKeys(fileInfoList.get(i).getFilePath());
+                for (int i=1;i<this.fileInfoList.size();i++){
+                    //获取板块
+                    WebElement element = driver.findElement(By.cssSelector(".file-list-v2-container"));
+                    WebElement upload = element.findElement(By.cssSelector(".webuploader-element-invisible"));
+                    WebDriverHelp.sleep(1);
+                    upload.sendKeys(fileInfoList.get(i).getFilePath());
+                }
+
             }
         }, 1, "批量上传").action(() -> {
             //清楚标题
@@ -103,7 +109,7 @@ public class BilibliUpLoad {
             //填入标题
             WebElement element = driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[8]/div[2]/div/div/input"));
             element.clear();
-            element.sendKeys(user.getUserName().concat("_").concat("").concat("直播实况"));
+            element.sendKeys(user.getUserName().concat("_").concat(yyyyMMddHH.format(fileInfoList.get(0).getStartTime())).concat("直播实况"));
         }, 1, "添加标题").action(() -> {
 
             driver.findElement(By.xpath("//*[@id=\"type-list-v2-container\"]/div[2]/div/div")).click();
@@ -133,6 +139,10 @@ public class BilibliUpLoad {
             driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[12]/div[2]/div/textarea"))
                     .sendKeys(user.getUserName().concat(yyyyMMddHHmmss.format(this.fileInfoList.get(0).getStartTime())).concat("-")
                             .concat(yyyyMMddHHmmss.format(this.fileInfoList.get(this.fileInfoList.size()-1).getEndTime())).concat("直播实况"));
+            actions.sendKeys(Keys.ENTER).build().perform();
+            driver.findElement(By.xpath("//*[@id=\"app\"]/div[2]/div[2]/div[3]/div[1]/div[12]/div[2]/div/textarea"))
+                    .sendKeys("乱入连接:https://space.bilibili.com/305768814");
+
         }, 1, "视屏简介").action(() -> {
             //添加标签
             driver.findElement(By.xpath("//*[@id=\"content-tag-v2-container\"]/div[2]/div/div[2]/input")).sendKeys("asmr");
@@ -151,28 +161,26 @@ public class BilibliUpLoad {
             //上传计数器
             int loadc=0;
             while (true) {
+                loadc=0;
                 try {
-                    List<WebElement> elements = driver.findElement(By.cssSelector(".file-list-v2-container")).findElements(By.cssSelector(".item-upload-info"));
+                    List<WebElement> elements = driver.findElement(By.cssSelector(".file-list-v2-container")).findElement(By.cssSelector(".file-list-v2-wrp"))
+                            .findElements(By.cssSelector(".item-upload-info"));
                     for (WebElement element:elements){
+                        flag=null;
                         flag = element.getText();
                         if ("上传完成".equals(flag)) {
                             loadc++;
                             continue;
-                        } else if ("正在上传".equals(flag)) {
-                            WebDriverHelp.sleep(2);
-                            try {
-                                load = driver.findElement(By.cssSelector(".file-item-remain")).getText();
-                            } catch (Exception e) {
-                                load = "(┬＿┬)";
-                            }
-                             /*LOGGER.info("正在上传:{}-->{}", file.getFilePath(), load);*/
-                        }else {
+                        } else if (null==flag&&"".equals(flag)) {
                             LOGGER.info("获取异常");
                             return;
+                        }else {
+                            WebDriverHelp.sleep(2);
+                            LOGGER.info("{},{}",this.fileInfoList.get(0).getGroupId(), flag);
                         }
                     }
                     if (loadc<this.fileInfoList.size()){
-                        LOGGER.info("总共{}个,还有{}个未上传",this.fileInfoList.size(),this.fileInfoList.size()-loadc);
+                        LOGGER.info("{},总共{}个,还有{}个未上传",this.fileInfoList.get(0).getGroupId(),this.fileInfoList.size(),this.fileInfoList.size()-loadc);
                     }else{
                         return;
                     }

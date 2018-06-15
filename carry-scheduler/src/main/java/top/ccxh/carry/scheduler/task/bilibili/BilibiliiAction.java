@@ -95,7 +95,7 @@ public class BilibiliiAction {
         groupList.clear();
         FileInfo condition =new FileInfo();
         //test 5 2
-        condition.setFlag(5); //补交也是以分p方式补交
+        condition.setFlag(2); //补交也是以分p方式补交
         List<FileInfo> select = fileInfoMapper.select(condition);
         Map<String, List<FileInfo>> stringListMap = groupFileinfo(select);
         ActionUser userCondition = new ActionUser();
@@ -124,7 +124,10 @@ public class BilibiliiAction {
             fileInfos.add(fileInfo);
             this.groupList.put(fileInfo.getGroupId(),fileInfos);
         }
-        this.fileInfoMapper.updateBathFileInfoByid(3,select);
+        if (select.size()>0){
+            this.fileInfoMapper.updateBathFileInfoByid(3,select);
+        }
+
         return groupList;
     }
 

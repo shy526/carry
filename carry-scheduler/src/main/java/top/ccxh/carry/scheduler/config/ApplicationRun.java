@@ -37,7 +37,7 @@ public class ApplicationRun implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        actionUserInit();
+       actionUserInit();
         fileInfoInit();
         environmentInit();
 
@@ -62,11 +62,7 @@ public class ApplicationRun implements ApplicationRunner {
         FileInfo condition = new FileInfo();
         condition.setFlag(3);
         List<FileInfo> select = fileInfoMapper.select(condition);
-        condition.setFlag(2);
-        for (FileInfo file:select){
-            condition.setId(file.getId());
-            fileInfoMapper.updateByPrimaryKeySelective(condition);
-        }
+        fileInfoMapper.updateBathFileInfoByid(2,select);
     }
 
     /**
