@@ -1,5 +1,7 @@
 logging:
   path: logs/
+  level:
+
 spring:
   profiles:
     active: datasource,mybatis,httpclient

@@ -87,7 +87,7 @@ public class BilibiliRecord implements Runnable {
                     HttpClientService.closeIO(response);
                     response = httpClientService.doResponse(url);
                     if (response == null) {
-                        LOGGER.info("bid:{}直播已结束,{}", user.getbId(),this.groupId);
+                        LOGGER.info("bid:{}直播已结束,{},{}", user.getbId(),this.groupId,this.url);
                         return;
                     }
                     LOGGER.info("bid:{}-稿件分p,{}", user.getbId(),this.groupId);
