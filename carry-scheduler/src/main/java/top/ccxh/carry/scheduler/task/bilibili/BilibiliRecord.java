@@ -23,6 +23,8 @@ public class BilibiliRecord implements Runnable {
     private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final static long MAX_SIZE = (long)((1000L * 1000L*1000L)*1.5D);
+    //最小上传 为200m
+    private final static long MIN_SIZE = (long)((1000L * 1000L*200L));
     private HttpClientService httpClientService;
     private ActionUser actionUser;
     private LinkedBlockingDeque<Object> linkedBlockingDeques;
@@ -52,13 +54,13 @@ public class BilibiliRecord implements Runnable {
         InputStream content = null;
         CloseableHttpResponse response = httpClientService.doResponse(url);
         if (response == null) {
-            LOGGER.info("bid:{}直播已结束", user.getbId());
+            LOGGER.info("bid:{}直播已结束,{}", user.getbId(),this.groupId);
             return;
         }
         try {
             content = new BufferedInputStream(response.getEntity().getContent());
         } catch (IOException e) {
-            LOGGER.info("{}的直播流获取异常:{}", user.getbId(), e.getMessage());
+            LOGGER.info("{}的直播流获取异常:{},{}", user.getbId(), e.getMessage(),this,groupId);
             return;
         }
         Date startTime = new Date();;
@@ -85,14 +87,15 @@ public class BilibiliRecord implements Runnable {
                     HttpClientService.closeIO(response);
                     response = httpClientService.doResponse(url);
                     if (response == null) {
-                        LOGGER.info("bid:{}直播已结束", user.getbId());
+                        LOGGER.info("bid:{}直播已结束,{}", user.getbId(),this.groupId);
                         return;
                     }
-                    LOGGER.info("bid:{}-稿件分p", user.getbId());
-                    //先分发
+                    LOGGER.info("bid:{}-稿件分p,{}", user.getbId(),this.groupId);
+                    //保存list
                     addList(startTime);
                     //重置开始时间
                     startTime = new Date();
+                    //切换新拍的流
                     content=new BufferedInputStream(response.getEntity().getContent());
                     bufferedOutputStream = getOutput();
                 }
@@ -124,7 +127,7 @@ public class BilibiliRecord implements Runnable {
     private void addList(Date startTime) {
         File file = new File(fileName);
         if (file.exists()) {
-            if (file.length() > 1) {
+            if (file.length() > MIN_SIZE) {
                 FileInfo fileInfo = new FileInfo();
                 fileInfo.setFilePath(file.getAbsolutePath());
                 fileInfo.setEndTime(new Date());
@@ -135,6 +138,9 @@ public class BilibiliRecord implements Runnable {
                 fileInfo.setGroupId(this.groupId);
                 this.fileInfoMapper.insertSelective(fileInfo);
                 this.fileInfoList.add(fileInfo);
+            }else {
+                //不符合删除
+                file.delete();
             }
         }
     }
@@ -151,7 +157,7 @@ public class BilibiliRecord implements Runnable {
     }
 
     /**
-     * 获取新的流并 idnex+1
+     * 获取新的流
      *
      * @return
      * @throws FileNotFoundException
@@ -167,13 +173,13 @@ public class BilibiliRecord implements Runnable {
     @Override
     public void run() {
         updateFla(1);
-        LOGGER.info("start-Thread Name{}-{}-{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId());
+        LOGGER.info("start-Thread Name{}-{}-{},{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId(),groupId);
         try {
             record(this.url, this.actionUser);
         }catch (Exception e){
            LOGGER.info("异常中断");
         }
-        LOGGER.info("end-Thread Name{}-{}-{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId());
+        LOGGER.info("end-Thread Name{}-{}-{},{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId(),groupId);
         updateFla(0);
     }
 
