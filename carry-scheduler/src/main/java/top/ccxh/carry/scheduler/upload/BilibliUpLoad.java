@@ -179,7 +179,7 @@ public class BilibliUpLoad {
                             }
                         }
                         if (loadc<this.fileInfoList.size()){
-                            LOGGER.info("{},总共{}个,还有{}个未上传",this.groupId,this.fileInfoList.size(),this.fileInfoList.size()-loadc);
+                           // LOGGER.info("{},总共{}个,还有{}个未上传",this.groupId,this.fileInfoList.size(),this.fileInfoList.size()-loadc);
                         }else{
                             return;
                         }
