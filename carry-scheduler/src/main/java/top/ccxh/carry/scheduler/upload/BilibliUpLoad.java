@@ -174,6 +174,10 @@ public class BilibliUpLoad {
                         } else if (null==flag&&"".equals(flag)) {
                             LOGGER.info("获取异常");
                             return;
+                        } else  if ("上传错误".equals(flag)){
+                            //TODO:此处有bug
+                            loadc++;
+                            continue;
                         }else {
                             WebDriverHelp.sleep(2);
                             LOGGER.info("{},{}",this.fileInfoList.get(0).getGroupId(), flag);

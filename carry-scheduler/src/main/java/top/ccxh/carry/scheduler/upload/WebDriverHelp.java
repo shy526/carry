@@ -17,7 +17,7 @@ public class WebDriverHelp {
     public static long createTime=0;
     private static   WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
-     /*  options.addArguments("headless");*/
+       options.addArguments("headless");
         options.addArguments("no-sandbox");
         String path = "/home/project/carry/chromedriver";
         if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") > -1) {

@@ -62,7 +62,10 @@ public class ApplicationRun implements ApplicationRunner {
         FileInfo condition = new FileInfo();
         condition.setFlag(3);
         List<FileInfo> select = fileInfoMapper.select(condition);
-        fileInfoMapper.updateBathFileInfoByid(2,select);
+        if(select.size()>0){
+            fileInfoMapper.updateBathFileInfoByid(2,select);
+        }
+
     }
 
     /**
