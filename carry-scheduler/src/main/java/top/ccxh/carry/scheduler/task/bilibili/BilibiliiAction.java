@@ -63,7 +63,7 @@ public class BilibiliiAction {
                     continue;
                 }
                 updateFla(user,1);
-                threadPool.execute(new BilibiliRecord(fileInfoMapper,user,actionUrl,fileRoot,dequeManger.getDeque(),actionUserMapper,httpClientService));
+                threadPool.execute(new BilibiliRecord(fileInfoMapper,user,actionUrl,fileRoot,dequeManger.getDeque(),actionUserMapper,httpClientService,this));
             } catch (Exception e) {
                 //将获取错误的的
                 HttpClientService.closeIO(response);
@@ -138,7 +138,7 @@ public class BilibiliiAction {
      * @return
      * @throws Exception
      */
-    private String getActionUrl(String roomId) throws Exception {
+    public String getActionUrl(String roomId) throws Exception {
         String s = httpClientService.doGet(String.format(ROOM_URL, roomId));
         JSONObject jsonObject = JSON.parseObject(s);
         Object room = jsonObject.getJSONObject("data").getString("room_id");

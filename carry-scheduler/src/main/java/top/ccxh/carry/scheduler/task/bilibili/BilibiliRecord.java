@@ -38,7 +38,8 @@ public class BilibiliRecord implements Runnable {
     //分p数组
     private List<FileInfo> fileInfoList=null;
 
-    public BilibiliRecord(FileInfoMapper fileInfoMapper,ActionUser actionUser, String url, String rootPath, LinkedBlockingDeque<Object> linkedBlockingDeques, ActionUserMapper actionUserMapper,HttpClientService httpClientService) {
+    private BilibiliiAction bilibiliiAction;
+    public BilibiliRecord(FileInfoMapper fileInfoMapper,ActionUser actionUser, String url, String rootPath, LinkedBlockingDeque<Object> linkedBlockingDeques, ActionUserMapper actionUserMapper,HttpClientService httpClientService,BilibiliiAction bilibiliiAction) {
         this.actionUser = actionUser;
         this.url = url;
         this.rootPath = rootPath.concat("/video/");
@@ -48,6 +49,7 @@ public class BilibiliRecord implements Runnable {
         this.fileInfoMapper=fileInfoMapper;
         this.groupId=UUID.randomUUID().toString();
         this.fileInfoList=new ArrayList<>();
+        this.bilibiliiAction=bilibiliiAction;
     }
 
     private void record(String url, ActionUser user) {
@@ -85,9 +87,10 @@ public class BilibiliRecord implements Runnable {
                     HttpClientService.closeIO(bufferedOutputStream);
                     HttpClientService.closeIO(content);
                     HttpClientService.closeIO(response);
-                    response = httpClientService.doResponse(url);
+                    String actionUrl = bilibiliiAction.getActionUrl(this.actionUser.getbId());
+                    response = httpClientService.doResponse(actionUrl);
                     if (response == null) {
-                        LOGGER.info("bid:{}直播已结束,{},{}", user.getbId(),this.groupId,this.url);
+                        LOGGER.info("bid:{}直播已结束,{},{}", user.getbId(),this.groupId,actionUrl);
                         return;
                     }
                     LOGGER.info("bid:{}-稿件分p,{}", user.getbId(),this.groupId);
@@ -103,6 +106,8 @@ public class BilibiliRecord implements Runnable {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
