@@ -96,6 +96,5 @@ public class ApplicationRun implements ApplicationRunner {
         if (!file.exists()){
             file.mkdirs();
         }
-
     }
 }

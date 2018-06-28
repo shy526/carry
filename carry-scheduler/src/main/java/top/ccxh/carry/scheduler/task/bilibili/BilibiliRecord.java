@@ -5,10 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.ccxh.carry.mapper.anno.ActionUserMapper;
-import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
 import top.ccxh.carry.mapper.pojo.FileInfo;
+import top.ccxh.carry.scheduler.service.ActionUserService;
+import top.ccxh.carry.scheduler.service.FileInfoService;
+import top.ccxh.carry.scheduler.task.TaskAction;
 import top.ccxh.common.service.HttpClientService;
 import java.io.*;
 import java.time.LocalDateTime;
@@ -31,26 +32,27 @@ public class BilibiliRecord implements Runnable {
     private LinkedBlockingDeque<Object> linkedBlockingDeques;
     private String rootPath;
     private String fileName;
-    private ActionUserMapper actionUserMapper;
+    private ActionUserService actionUserService;
     private String url;
-    private FileInfoMapper fileInfoMapper;
+    private FileInfoService fileInfoService;
     //唯一分组id
     private String groupId=null;
     //分p数组
     private List<FileInfo> fileInfoList=null;
 
-    private BilibiliiAction bilibiliiAction;
-    public BilibiliRecord(FileInfoMapper fileInfoMapper,ActionUser actionUser, String url, String rootPath, LinkedBlockingDeque<Object> linkedBlockingDeques, ActionUserMapper actionUserMapper,HttpClientService httpClientService,BilibiliiAction bilibiliiAction) {
+    private TaskAction taskAction =null;
+    public BilibiliRecord(FileInfoService fileInfoService,ActionUser actionUser,
+                          String url, String rootPath, LinkedBlockingDeque<Object> linkedBlockingDeques, ActionUserService actionUserService,HttpClientService httpClientService,TaskAction bilibiliiAction) {
         this.actionUser = actionUser;
         this.url = url;
         this.rootPath = rootPath.concat("/video/");
         this.linkedBlockingDeques = linkedBlockingDeques;
-        this.actionUserMapper = actionUserMapper;
+        this.fileInfoService = fileInfoService;
         this.httpClientService=httpClientService;
-        this.fileInfoMapper=fileInfoMapper;
+        this.actionUserService=actionUserService;
         this.groupId=UUID.randomUUID().toString();
         this.fileInfoList=new ArrayList<>();
-        this.bilibiliiAction=bilibiliiAction;
+        this.taskAction =bilibiliiAction;
     }
 
     private void record(String url, ActionUser user) {
@@ -87,10 +89,10 @@ public class BilibiliRecord implements Runnable {
                     }
                     HttpClientService.closeIO(bufferedOutputStream);
                     HttpClientService.closeIO(response);
-                    String actionUrl = bilibiliiAction.getActionUrl(this.actionUser.getbId());
+                    String actionUrl = taskAction.getActionUrl(this.actionUser.getbId());
                     response = httpClientService.doResponse(actionUrl);
                     if (response == null) {
-                        LOGGER.info("bid:{}直播已结束,{},{}", user.getbId(),this.groupId,actionUrl);
+                        LOGGER.info("bid:{}稿件分p失败或直播已结束,{}", user.getbId(),this.groupId,actionUrl);
                         return;
                     }
                     LOGGER.info("bid:{}-稿件分p,{}", user.getbId(),this.groupId);
@@ -137,11 +139,9 @@ public class BilibiliRecord implements Runnable {
                 fileInfo.setFilePath(file.getAbsolutePath());
                 fileInfo.setEndTime(new Date());
                 fileInfo.setStartTime(startTime);
-                fileInfo.setCreateTime(new Date());
-                fileInfo.setUpdateTime(fileInfo.getCreateTime());
                 fileInfo.setUserId(this.actionUser.getId());
                 fileInfo.setGroupId(this.groupId);
-                this.fileInfoMapper.insertSelective(fileInfo);
+                this.fileInfoService.insertFileInfo(fileInfo);
                 this.fileInfoList.add(fileInfo);
             }else {
                 //不符合删除
@@ -180,7 +180,7 @@ public class BilibiliRecord implements Runnable {
 
     @Override
     public void run() {
-        updateFla(1);
+        actionUserService.actionUserPlay(this.actionUser.getId());
         LOGGER.info("start-Thread Name{}-{}-{},{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId(),groupId);
         try {
             record(this.url, this.actionUser);
@@ -188,21 +188,7 @@ public class BilibiliRecord implements Runnable {
            LOGGER.info("异常中断");
         }
         LOGGER.info("end-Thread Name{}-{}-{},{}",Thread.currentThread().getName(),actionUser.getUserName(),actionUser.getId(),groupId);
-        updateFla(0);
+        actionUserService.actionUserPlayOver(this.actionUser.getId());
     }
 
-    /**
-     * 更新用户标志位,
-     * =1 时会添加闲的actionTime
-     * @param i
-     */
-    private void updateFla(int i) {
-        ActionUser ac = new ActionUser();
-        ac.setFlag(i);
-        ac.setId(actionUser.getId());
-        if (1 == i) {
-            ac.setActionTime(new Date());
-        }
-        actionUserMapper.updateByPrimaryKeySelective(ac);
-    }
 }
