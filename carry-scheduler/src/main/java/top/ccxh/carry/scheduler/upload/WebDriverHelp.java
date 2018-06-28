@@ -17,11 +17,11 @@ public class WebDriverHelp {
     public static long createTime=0;
     private static   WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
-       options.addArguments("headless");
+        options.addArguments("headless");
         options.addArguments("no-sandbox");
         String path = "/home/project/carry/chromedriver";
         if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") > -1) {
-         //   path = "F:\\javap\\carry\\carry-scheduler\\src\\main\\resources\\driver\\chromedriver.exe";
+            //rpath = "F:\\javap\\carry\\carry-scheduler\\src\\main\\resources\\driver\\chromedriver.exe";
             path = "D:\\chromedriver.exe";
         }
         File file = new File(path);
@@ -37,7 +37,7 @@ public class WebDriverHelp {
         return new ChromeDriver(options);
 
     }
-    static WebDriver getChromeDriver(){
+    public static WebDriver getChromeDriver(){
         if(WebDriverHelp.webDriver==null){
             WebDriverHelp.webDriver=createChromeDriver();
             //1280*720

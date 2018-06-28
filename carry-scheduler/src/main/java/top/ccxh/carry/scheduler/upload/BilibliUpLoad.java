@@ -13,6 +13,7 @@ import top.ccxh.carry.mapper.anno.FileInfoMapper;
 import top.ccxh.carry.mapper.pojo.ActionUser;
 import top.ccxh.carry.mapper.pojo.CookiePojo;
 import top.ccxh.carry.mapper.pojo.FileInfo;
+import top.ccxh.carry.scheduler.service.FileInfoService;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -27,7 +28,7 @@ public class BilibliUpLoad {
     CookieMapper cookieMapper;
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    FileInfoMapper fileInfoMapper;
+    FileInfoService fileInfoService;
     @Value("${file.root}")
     private String fileRoot;
     private List<FileInfo> fileInfoList;
@@ -197,24 +198,19 @@ public class BilibliUpLoad {
             action.action(() -> {
                 String text = driver.findElement(By.xpath("//*[@id=\"app\"]/div/div[3]/div[3]/a[1]")).getText();
                 if (text.equals("查看稿件")) {
-                    for (FileInfo file:this.fileInfoList){
-                        this.fileInfoMapper.updateBathFileInfoByid(1,fileInfoList);
+                        this.fileInfoService.bathFileInfoSucceed(fileInfoList);
                         LOGGER.info("upload success,{}",groupId);
-                    }
-
                 } else {
-                    for (FileInfo file:this.fileInfoList){
-                        Integer flag = file.getFlag();
+                        Integer flag = fileInfoList.get(0).getFlag();
                         if (flag == null || flag == 0) {
-                            this.fileInfoMapper.updateBathFileInfoByid(2,fileInfoList);
+                            this.fileInfoService.bathFileInfoRepair(fileInfoList);
                             LOGGER.info("upload error,{}",groupId);
                             //上传不成功
                         } else {
-                            this.fileInfoMapper.updateBathFileInfoByid(4,fileInfoList);
+                            this.fileInfoService.bathFileInfoError(fileInfoList);
                             //补交不成功
                             LOGGER.info("upload2 error,{}",groupId);
                         }
-                    }
 
                     WebDriverHelp.zclose();
                 }
