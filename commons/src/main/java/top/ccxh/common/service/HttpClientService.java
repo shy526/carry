@@ -246,7 +246,7 @@ public class HttpClientService {
             try {
                 response.close();
             } catch (IOException e) {
-                e.printStackTrace();
+               LOGGER.info("no close");
             } finally {
                 response = null;
             }

@@ -23,8 +23,9 @@ public class BilibiliRecord implements Runnable {
     private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliiAction.class);
     private final static DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final static long MAX_SIZE = (long)((1000L * 1000L*1000L)*1.5D);
+   // private final static long MAX_SIZE = (long)((1000L * 1000L*10L));
     //最小上传 为200m
-    private final static long MIN_SIZE = (long)((1000L * 1000L*200L));
+    private final static long MIN_SIZE = (long)((1000L * 1000L*50L));
     private HttpClientService httpClientService;
     private ActionUser actionUser;
     private LinkedBlockingDeque<Object> linkedBlockingDeques;
@@ -69,7 +70,7 @@ public class BilibiliRecord implements Runnable {
         BufferedOutputStream bufferedOutputStream = null;
         try {
              bufferedOutputStream = getOutput();
-            byte buff[] = new byte[2048];
+            byte buff[] = new byte[4096];
             int len = -1;
             long size = 0;
             while ((len = content.read(buff)) != -1) {
@@ -85,7 +86,6 @@ public class BilibiliRecord implements Runnable {
                         e.printStackTrace();
                     }
                     HttpClientService.closeIO(bufferedOutputStream);
-                    HttpClientService.closeIO(content);
                     HttpClientService.closeIO(response);
                     String actionUrl = bilibiliiAction.getActionUrl(this.actionUser.getbId());
                     response = httpClientService.doResponse(actionUrl);
@@ -117,7 +117,7 @@ public class BilibiliRecord implements Runnable {
                 e.printStackTrace();
             }
             HttpClientService.closeIO(bufferedOutputStream);
-            HttpClientService.closeIO(content);
+            /*HttpClientService.closeIO(content);*/
             HttpClientService.closeIO(response);
             addList(startTime);
             finalAddDeques();
@@ -155,6 +155,9 @@ public class BilibiliRecord implements Runnable {
      */
     private void finalAddDeques(){
         JSONObject object = new JSONObject();
+        if (this.fileInfoList.size()<=0){
+            return;
+        }
         object.put("file", this.fileInfoList);
         object.put("user", actionUser);
         LOGGER.info("add deque:{}",JSON.toJSONString(object));

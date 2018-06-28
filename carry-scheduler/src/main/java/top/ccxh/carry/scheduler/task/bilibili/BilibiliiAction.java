@@ -47,7 +47,7 @@ public class BilibiliiAction {
     @Autowired
     FileInfoMapper fileInfoMapper;
 
-    @Scheduled(cron = "10/1 * * * * ? ")
+    @Scheduled(cron = "20/1 * * * * ? ")
     public void scan() {
         CloseableHttpResponse response = null;
         ActionUser actionUser = new ActionUser();

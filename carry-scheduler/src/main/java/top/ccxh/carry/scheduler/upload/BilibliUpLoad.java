@@ -185,7 +185,7 @@ public class BilibliUpLoad {
                         }
                         WebDriverHelp.sleep(2);
                     } catch (Exception e) {
-                        LOGGER.info("无法确认上传");
+                        LOGGER.info("无法确认上传,{}",this.groupId);
                         break;
                     }
                 }
