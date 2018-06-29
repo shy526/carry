@@ -1,1 +1,1 @@
-nohup java -jar /home/project/carry/carry-scheduler-1.0-SNAPSHOT.jar > /home/project/carry/logs/spring.out &
+nohup java -jar ./carry-scheduler-1.0-SNAPSHOT.jar >./logs/spring.out &

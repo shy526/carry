@@ -96,5 +96,11 @@ public class ApplicationRun implements ApplicationRunner {
         if (!file.exists()){
             file.mkdirs();
         }
+
+        String logs = fileRoot.concat("/logs");
+        file=new File(logs);
+        if (!file.exists()){
+            file.mkdirs();
+        }
     }
 }

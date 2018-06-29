@@ -7,23 +7,29 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 
-
+@Component
 public class WebDriverHelp {
+    @Value("${file.root}")
+    private String fileRoot;
     private static WebDriver webDriver;
     public static long createTime=0;
-    private static   WebDriver createChromeDriver() {
+    public    WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("headless");
         options.addArguments("no-sandbox");
-        String path = "/home/project/carry/chromedriver";
+        String path = "/chromedriver";
         if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") > -1) {
             //rpath = "F:\\javap\\carry\\carry-scheduler\\src\\main\\resources\\driver\\chromedriver.exe";
-            path = "D:\\chromedriver.exe";
+            path = "/chromedriver.exe";
         }
+        path=fileRoot+path;
         File file = new File(path);
         if (!file.exists()) {
             throw new NullPointerException("没有这个文件");
@@ -39,7 +45,7 @@ public class WebDriverHelp {
     }
     public static WebDriver getChromeDriver(){
         if(WebDriverHelp.webDriver==null){
-            WebDriverHelp.webDriver=createChromeDriver();
+            WebDriverHelp.webDriver=new WebDriverHelp().createChromeDriver();
             //1280*720
             webDriver.manage().window().setSize(new Dimension(1280, 720));
             return webDriver;
