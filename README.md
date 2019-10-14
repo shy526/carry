@@ -38,6 +38,8 @@
     - 已经完成demo阶段
          - 好处提供账户密码就可以直接登录拜托cookie过期的烦恼
          - demo在`carry-scheduler\src\test\java\top\ccxh`,等不及的可以自行研究
+ ## 补充
+ - 因为年久失修 部分功能可能早已失效,本是一时兴起之作
 
 
                 
