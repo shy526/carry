@@ -2,6 +2,10 @@
 - 简单的说就是搬运工全自动工具
 - 主要针对b站进行上传投稿
 
+
+### 这个已经废弃了
+新项目 https://github.com/sunjiaqing/live-recording
+
 ## 待修复bug
 - 意外断开 原本连续的变为多个单次的直播
     - 已经修复
